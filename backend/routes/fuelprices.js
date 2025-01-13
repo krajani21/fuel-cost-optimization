@@ -25,7 +25,13 @@ db.once("open", async() => {
     const response = await axios.get("http://127.0.0.1:5000/Alberta/edmonton");
     const fuel_data = response.data;
     await fuelPrice.insertMany(fuel_data);
-    console.log(fuel_data);
+    
+    
+
+    const prices = await fuelPrice.find({}, {_id: 0, price: 1});
+    console.log(prices);
+
+
 
     mongoose.connection.close();
     

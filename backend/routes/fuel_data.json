@@ -1,0 +1,62 @@
+[
+  {
+    "address": "24 South Ave",
+    "last_update": "13 hours",
+    "price": 127.9,
+    "station_name": "Hughes"
+  },
+  {
+    "address": "2584 46 Ave E",
+    "last_update": "07 hours",
+    "price": 128.9,
+    "station_name": "Costco"
+  },
+  {
+    "address": "10540 82 St NW",
+    "last_update": "02 hours",
+    "price": 129.9,
+    "station_name": "Hughes"
+  },
+  {
+    "address": "12450 149th St NW",
+    "last_update": "06 hours",
+    "price": 129.9,
+    "station_name": "Costco"
+  },
+  {
+    "address": "904 Mistatim Link",
+    "last_update": "06 hours",
+    "price": 131.6,
+    "station_name": "Petro-Canada"
+  },
+  {
+    "address": "13708 164 St NW",
+    "last_update": "06 hours",
+    "price": 131.9,
+    "station_name": "Petro-Canada"
+  },
+  {
+    "address": "100 Maple Ridge Dr NW",
+    "last_update": "04 hours",
+    "price": 133.9,
+    "station_name": "Tempo"
+  },
+  {
+    "address": "8004 Roper Rd",
+    "last_update": "07 hours",
+    "price": 134.9,
+    "station_name": "Hughes"
+  },
+  {
+    "address": "10102 88th Ave",
+    "last_update": "01 hour",
+    "price": 135.9,
+    "station_name": "Fas Gas Plus"
+  },
+  {
+    "address": "500 Manning Crossing",
+    "last_update": "07 hours",
+    "price": 135.9,
+    "station_name": "Shell"
+  }
+]

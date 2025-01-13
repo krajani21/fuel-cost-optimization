@@ -1,22 +1,32 @@
-const express = require("express");
-
+const mongoose = require("mongoose");
 const axios = require("axios");
 
-const PORT = 3000;
 
-const app = express();
 
-async function getFuelPrices(){
-    const response = await axios.get("http://127.0.0.1:5000/Alberta/edmonton")
+mongoose.connect("mongodb://localhost:27017");
 
-    app.get("/example", function(req, res){
-        res.send(response.data);
+const db = mongoose.connection;
+
+db.on("error", console.error.bind(console, "mongoDB connection error:"));
+
+db.once("open", async() => {
+    console.log("Connected to MongoDB");
+
+    const fuelPriceSchema = new mongoose.Schema({
+        address: String,
+        last_update: String,
+        price: Number,
+        station_name: String,
+
     });
+
+    const fuelPrice = mongoose.model("fuelPrice", fuelPriceSchema);
+
+    const response = await axios.get("http://127.0.0.1:5000/Alberta/edmonton");
+    const fuel_data = response.data;
+    await fuelPrice.insertMany(fuel_data);
+    console.log(fuel_data);
+
+    mongoose.connection.close();
     
-    console.log(`server is running on port ${PORT}`);
-    app.listen(PORT);
-
-}
-
-getFuelPrices();
-
+});

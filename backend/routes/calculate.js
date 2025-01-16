@@ -1,9 +1,6 @@
-const fs = require("fs");
+const data_to_calculate = require("backend/routes/geocode.js");
 
-const data = fs.readFile("fuel_data.json", "utf8", (err, data) => {
-    if(err){
-        console.log(err);
-    }
-    console.log(data);
-});
 
+const calculate = (distance, refuel_amount) => {
+    const travel_cost = distance * fuel_price;
+}

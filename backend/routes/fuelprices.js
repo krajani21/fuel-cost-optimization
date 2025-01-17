@@ -25,7 +25,13 @@ db.once("open", async() => {
 
     const response = await axios.get("http://127.0.0.1:5000/Alberta/edmonton");
     const fuel_data = response.data;
-    //await fuelPrice.insertMany(fuel_data);
+    for (const fuel of fuel_data){
+        await fuelPrice.updateOne(
+            {address: fuel.address},
+            {$set: fuel},
+            {upsert: true}
+        );
+    }
 
     fs.writeFile("fuel_data.json", JSON.stringify(fuel_data, null, 2), (err) => {
         if(err){

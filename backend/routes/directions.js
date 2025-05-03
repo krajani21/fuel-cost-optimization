@@ -66,3 +66,4 @@ const getStationEstimates = async (origin) => {
 };
 
 module.exports = { getStationEstimates };
+

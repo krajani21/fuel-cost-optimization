@@ -26,13 +26,17 @@ const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const fuelRoutes = require("./routes/fuelRoutes");
+const cors = require("cors");
+
+
 
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
+app.use(cors());//cors should go after defining the app, it causes an error if placed before
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const FuelList = () => {
+const FuelList = ({ userLocation}) => {
   const [stations, setStations] = useState([]);
 
   useEffect(() => {
@@ -15,6 +15,12 @@ const FuelList = () => {
       })
       .catch((error) => console.error("Error fetching fuel stations:", error));
   }, []);
+
+  useEffect(() => {
+    if (userLocation){
+      console.log("the location retrieved is: ", userLocation);
+    }
+  },[userLocation]);
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>

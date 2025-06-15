@@ -25,6 +25,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
+const distanceRoutes = require("./routes/distanceRoutes");
 const fuelRoutes = require("./routes/fuelRoutes");
 const cors = require("cors");
 
@@ -48,6 +49,8 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // Route for MongoDB fuel station logic
 app.use("/fuelstations", fuelRoutes); // e.g. /fuelstations/cheapest
+
+app.use("/api/distances", distanceRoutes);//handle distance calculation logic
 
 // Optional root route
 app.get("/", (req, res) => {

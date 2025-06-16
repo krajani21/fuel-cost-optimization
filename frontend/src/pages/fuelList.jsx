@@ -1,31 +1,33 @@
 import React, { useState, useEffect } from 'react';
+import { fetchDistances } from '../api/distance'; 
 
-const FuelList = ({ userLocation}) => {
+const FuelList = ({ userLocation }) => {
   const [stations, setStations] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/fuelstations/cheapest")
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-        return res.json();
-      })
-      .then((data) => {
-        console.log("Fetched data:", data);
-        setStations(data);
-      })
-      .catch((error) => console.error("Error fetching fuel stations:", error));
-  }, []);
+    // Only call once userLocation is available
+    if (userLocation) {
+      console.log("User location received:", userLocation);
 
-  useEffect(() => {
-    if (userLocation){
-      console.log("the location retrieved is: ", userLocation);
+      fetchDistances(userLocation)
+        .then((data) => {
+          // Optional: sort by total cost or just distance
+          const sorted = data
+            .filter(station => station.distance !== null)
+            .sort((a, b) => a.distance - b.distance); // sort by shortest distance
+          
+          setStations(sorted);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch distances:", err);
+        });
     }
-  },[userLocation]);
+  }, [userLocation]);
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
       <h1 style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "20px" }}>
-        Cheapest Fuel Stations
+        Nearby Fuel Stations
       </h1>
       <ul style={{ listStyleType: "none", padding: 0 }}>
         {stations.map((station, index) => (
@@ -40,6 +42,10 @@ const FuelList = ({ userLocation}) => {
             }}
           >
             <strong>{station.station_name}</strong> - {station.address} - ${station.price}
+            <br />
+            <span style={{ fontSize: "0.9em", color: "#555" }}>
+              Distance: {station.distance_text} ({station.duration_text})
+            </span>
           </li>
         ))}
       </ul>

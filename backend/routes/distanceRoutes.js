@@ -5,7 +5,6 @@ const axios = require("axios");
 const stations = require("../data/fuel_data.json"); //for now, get data from local JSON file
 //later will change to database
 
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
 router.post("/", async (req, res) => {
   try {
@@ -18,14 +17,18 @@ router.post("/", async (req, res) => {
     //starting point for calculating distance
     const originString = `${origin.lat},${origin.lng}`;
 
+    const city = "Edmonton, AB, Canada";//default city for now can be changed later
+
     //get all destinations to calculate distances to
     const destinations = stations
-      .map((station) => `${station.latitude},${station.longitude}`)
+      .map((station) => encodeURIComponent(`${station.address}, ${city}`))
       .join("|");
 
-    const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${originString}&destinations=${destinations}&key=${GOOGLE_API_KEY}`;
+    const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${originString}&destinations=${destinations}&key=${process.env.GOOGLE_API_KEY}`;
 
     const response = await axios.get(url);
+    console.log("Google API raw response:", response.data);
+
 
     const distanceData = response.data.rows[0].elements;
 

@@ -1,6 +1,6 @@
 // A simple cost model without needing vehicle efficiency or refuel litres
 
-const FLAT_COST_PER_KM = 0.13; // flat $0.10/km travel cost
+const FLAT_COST_PER_KM = 0.13; // flat $0.13/km travel cost
 
 const calculateTotalCost = ({
   price_per_litre,

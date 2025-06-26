@@ -5,16 +5,18 @@ const FuelList = ({ userLocation }) => {
   const [stations, setStations] = useState([]);
   const [originalStations, setOriginalStations] = useState([]);
   const [fuelAmount, setFuelAmount] = useState("");
-  const [sortBy, setSortBy] = useState("distance"); // "distance" or "volume"
+  const [sortBy, setSortBy] = useState("distance");
 
   useEffect(() => {
     if (userLocation) {
-      fetchDistances(userLocation)
+      const budget = parseFloat(fuelAmount) || 0;
+
+      fetchDistances(userLocation, budget)
         .then((data) => {
-          // Convert price to dollars once
           const converted = data.map(station => ({
             ...station,
             price: station.price / 100,
+            fuel_volume: station.fuel_volume ? parseFloat(station.fuel_volume) : null,
           }));
 
           const sorted = converted
@@ -28,34 +30,48 @@ const FuelList = ({ userLocation }) => {
           console.error("Failed to fetch distances:", err);
         });
     }
-  }, [userLocation]);
+  }, [userLocation, fuelAmount]);
 
   const toggleSort = () => {
     if (sortBy === "distance") {
       setSortBy("volume");
-      sortByVolume(fuelAmount);
+      sortByVolume();
     } else {
       setSortBy("distance");
       setStations([...originalStations]);
     }
   };
 
-  const sortByVolume = (amount) => {
-    const num = parseFloat(amount);
-    if (!isNaN(num)) {
-      const sorted = [...originalStations].sort(
-        (a, b) => (num / b.price) - (num / a.price)
-      );
-      setStations(sorted);
-    }
+  const sortByVolume = () => {
+    const sorted = [...originalStations]
+      .filter(station => station.fuel_volume !== null)
+      .sort((a, b) => b.fuel_volume - a.fuel_volume);
+    setStations(sorted);
   };
 
   const handleAmountChange = (e) => {
     const val = e.target.value;
     setFuelAmount(val);
 
-    if (sortBy === "volume") {
-      sortByVolume(val);
+    if (userLocation) {
+      fetchDistances(userLocation, parseFloat(val) || 0)
+        .then((data) => {
+          const converted = data.map(station => ({
+            ...station,
+            price: station.price / 100,
+            fuel_volume: station.fuel_volume ? parseFloat(station.fuel_volume) : null,
+          }));
+
+          const sorted = converted
+            .filter(station => station.fuel_volume !== null)
+            .sort((a, b) => b.fuel_volume - a.fuel_volume);
+
+          setStations(sorted);
+          setOriginalStations(sorted);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch updated stations:", err);
+        });
     }
   };
 
@@ -94,8 +110,8 @@ const FuelList = ({ userLocation }) => {
       <ul style={{ listStyleType: "none", padding: 0 }}>
         {stations.map((station, index) => {
           const volume =
-            fuelAmount && sortBy === "volume"
-              ? (parseFloat(fuelAmount) / station.price).toFixed(2)
+            fuelAmount && sortBy === "volume" && station.fuel_volume
+              ? station.fuel_volume.toFixed(2)
               : null;
 
           return (

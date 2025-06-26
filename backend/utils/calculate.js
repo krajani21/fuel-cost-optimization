@@ -1,22 +1,17 @@
-// A simple cost model without needing vehicle efficiency or refuel litres
+const EFFICIENCY_PER_100KM = 10; //litres per 100 km
 
-const FLAT_COST_PER_KM = 0.13; // flat $0.13/km travel cost
+const calculateEffectiveFuelVolume = ({ price_per_litre, distance_km, budget }) => {
+  const litresUsed = (distance_km * EFFICIENCY_PER_100KM) / 100;
+  const travelCost = litresUsed * price_per_litre;
 
-const calculateTotalCost = ({
-  price_per_litre,
-  distance_km,
-}) => {
-  // Approximate cost to travel to the station
-  const travel_cost = distance_km * FLAT_COST_PER_KM;
-
-  // Total estimated cost = fuel price + travel cost
-  const total_cost = price_per_litre + travel_cost;
+  const effectiveBudget = budget - travelCost;
+  const fuelVolume = effectiveBudget > 0 ? effectiveBudget / price_per_litre : 0;
 
   return {
-    fuel_price: price_per_litre.toFixed(2),
-    travel_cost: travel_cost.toFixed(2),
-    total_cost: total_cost.toFixed(2),
+    travel_cost: travelCost.toFixed(2),
+    effective_budget: effectiveBudget.toFixed(2),
+    fuel_volume: fuelVolume.toFixed(2),
   };
 };
 
-module.exports = { calculateTotalCost };
+module.exports = { calculateEffectiveFuelVolume };

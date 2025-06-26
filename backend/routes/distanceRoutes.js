@@ -1,26 +1,24 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
+const { calculateEffectiveFuelVolume } = require("../utils/calculate");
 
 const FLASK_API_URL = "http://localhost:8000/alberta/edmonton";
 
 router.post("/", async (req, res) => {
   try {
-    const { origin } = req.body;
+    const { origin, budget } = req.body;
 
-    if (!origin || !origin.lat || !origin.lng) {
-      return res.status(400).json({ error: "Invalid origin location" });
+    if (!origin || !origin.lat || !origin.lng || typeof budget !== "number") {
+      return res.status(400).json({ error: "Invalid origin or budget" });
     }
 
-      //starting point for calculating distance
     const originString = `${origin.lat},${origin.lng}`;
-
-    const city = "Edmonton, AB, Canada";//default city for now can be changed later 
+    const city = "Edmonton, AB, Canada";
 
     const stationRes = await axios.get(FLASK_API_URL);
     const stations = stationRes.data;
 
-    //get all destinations to calculate distances to
     const destinations = stations
       .map((station) => encodeURIComponent(`${station.address}, ${city}`))
       .join("|");
@@ -30,14 +28,31 @@ router.post("/", async (req, res) => {
     const response = await axios.get(url);
     const distanceData = response.data.rows[0].elements;
 
-    //attach distance data to station list
-    const result = stations.map((station, index) => ({
-      ...station,
-      distance: distanceData[index].distance?.value || null,
-      distance_text: distanceData[index].distance?.text || null,
-      duration: distanceData[index].duration?.value || null,
-      duration_text: distanceData[index].duration?.text || null,
-    }));
+    const result = stations.map((station, index) => {
+      const distanceMeters = distanceData[index].distance?.value;
+      const distanceKm = distanceMeters ? distanceMeters / 1000 : null;
+
+      let fuelCalc = null;
+
+      if (distanceKm !== null) {
+        fuelCalc = calculateEffectiveFuelVolume({
+          price_per_litre: station.price,
+          distance_km: distanceKm,
+          budget,
+        });
+      }
+
+      return {
+        ...station,
+        distance: distanceMeters,
+        distance_text: distanceData[index].distance?.text || null,
+        duration: distanceData[index].duration?.value || null,
+        duration_text: distanceData[index].duration?.text || null,
+        travel_cost: fuelCalc?.travel_cost || null,
+        effective_budget: fuelCalc?.effective_budget || null,
+        fuel_volume: fuelCalc?.fuel_volume || null,
+      };
+    });
 
     res.json(result);
   } catch (error) {

@@ -20,8 +20,14 @@ const FuelList = ({ userLocation }) => {
           }));
 
           const sorted = converted
-            .filter(station => station.distance !== null)
-            .sort((a, b) => a.distance - b.distance);
+            .filter(station =>
+              sortBy === "volume" ? station.fuel_volume !== null : station.distance !== null
+            )
+            .sort((a, b) =>
+              sortBy === "volume"
+                ? b.fuel_volume - a.fuel_volume
+                : a.distance - b.distance
+            );
 
           setStations(sorted);
           setOriginalStations(sorted);
@@ -30,49 +36,16 @@ const FuelList = ({ userLocation }) => {
           console.error("Failed to fetch distances:", err);
         });
     }
-  }, [userLocation, fuelAmount]);
+  }, [userLocation, fuelAmount, sortBy]);
 
   const toggleSort = () => {
-    if (sortBy === "distance") {
-      setSortBy("volume");
-      sortByVolume();
-    } else {
-      setSortBy("distance");
-      setStations([...originalStations]);
-    }
-  };
-
-  const sortByVolume = () => {
-    const sorted = [...originalStations]
-      .filter(station => station.fuel_volume !== null)
-      .sort((a, b) => b.fuel_volume - a.fuel_volume);
-    setStations(sorted);
+    const newSort = sortBy === "distance" ? "volume" : "distance";
+    setSortBy(newSort);
   };
 
   const handleAmountChange = (e) => {
     const val = e.target.value;
     setFuelAmount(val);
-
-    if (userLocation) {
-      fetchDistances(userLocation, parseFloat(val) || 0)
-        .then((data) => {
-          const converted = data.map(station => ({
-            ...station,
-            price: station.price / 100,
-            fuel_volume: station.fuel_volume ? parseFloat(station.fuel_volume) : null,
-          }));
-
-          const sorted = converted
-            .filter(station => station.fuel_volume !== null)
-            .sort((a, b) => b.fuel_volume - a.fuel_volume);
-
-          setStations(sorted);
-          setOriginalStations(sorted);
-        })
-        .catch((err) => {
-          console.error("Failed to fetch updated stations:", err);
-        });
-    }
   };
 
   return (

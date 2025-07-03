@@ -5,13 +5,14 @@ const FuelList = ({ userLocation }) => {
   const [stations, setStations] = useState([]);
   const [originalStations, setOriginalStations] = useState([]);
   const [fuelAmount, setFuelAmount] = useState("");
+  const [submittedAmount, setSubmittedAmount] = useState(null); // NEW
   const [sortBy, setSortBy] = useState("distance");
 
   useEffect(() => {
-    if (userLocation) {
-      const budget = parseFloat(fuelAmount) || 0;
+    if (userLocation && (sortBy === "distance" || submittedAmount !== null)) {
+      const budgetInCents = sortBy === "volume" ? (parseFloat(submittedAmount) * 100 || 0) : 0;
 
-      fetchDistances(userLocation, budget)
+      fetchDistances(userLocation, budgetInCents)
         .then((data) => {
           const converted = data.map(station => ({
             ...station,
@@ -36,16 +37,24 @@ const FuelList = ({ userLocation }) => {
           console.error("Failed to fetch distances:", err);
         });
     }
-  }, [userLocation, fuelAmount, sortBy]);
+  }, [userLocation, submittedAmount, sortBy]);
 
   const toggleSort = () => {
-    const newSort = sortBy === "distance" ? "volume" : "distance";
-    setSortBy(newSort);
+    setSortBy(prev => {
+      const newSort = prev === "distance" ? "volume" : "distance";
+      if (newSort === "distance") {
+        setSubmittedAmount(null); // reset when toggling back
+      }
+      return newSort;
+    });
   };
 
   const handleAmountChange = (e) => {
-    const val = e.target.value;
-    setFuelAmount(val);
+    setFuelAmount(e.target.value);
+  };
+
+  const handleSubmit = () => {
+    setSubmittedAmount(fuelAmount); // triggers API call
   };
 
   return (
@@ -60,22 +69,38 @@ const FuelList = ({ userLocation }) => {
             Sort by: {sortBy === "distance" ? "Distance" : "Max Volume"}
           </button>
           {sortBy === "volume" && (
-            <label>
-              Enter $ amount:
-              <input
-                type="number"
-                value={fuelAmount}
-                onChange={handleAmountChange}
-                placeholder="e.g. 40"
+            <div style={{ display: "inline-block" }}>
+              <label>
+                Enter $ amount:
+                <input
+                  type="number"
+                  value={fuelAmount}
+                  onChange={handleAmountChange}
+                  placeholder="e.g. 40"
+                  style={{
+                    marginLeft: "10px",
+                    padding: "5px",
+                    borderRadius: "4px",
+                    border: "1px solid #ccc",
+                    width: "80px",
+                  }}
+                />
+              </label>
+              <button
+                onClick={handleSubmit}
                 style={{
                   marginLeft: "10px",
-                  padding: "5px",
+                  padding: "5px 10px",
                   borderRadius: "4px",
-                  border: "1px solid #ccc",
-                  width: "80px",
+                  backgroundColor: "#007BFF",
+                  color: "#fff",
+                  border: "none",
+                  cursor: "pointer",
                 }}
-              />
-            </label>
+              >
+                Submit
+              </button>
+            </div>
           )}
         </div>
       )}
@@ -83,7 +108,7 @@ const FuelList = ({ userLocation }) => {
       <ul style={{ listStyleType: "none", padding: 0 }}>
         {stations.map((station, index) => {
           const volume =
-            fuelAmount && sortBy === "volume" && station.fuel_volume
+            submittedAmount && sortBy === "volume" && station.fuel_volume
               ? station.fuel_volume.toFixed(2)
               : null;
 

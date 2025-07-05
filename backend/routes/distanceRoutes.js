@@ -100,15 +100,16 @@ router.post("/", async (req, res) => {
         fuel_volume: null,
         travel_cost: null,
         effective_budget: null,
+        efficiency: null,
       };
 
-      if (distanceKm !== null && typeof station.price === "number" && typeof budget === "number") {
+      if (distanceKm !== null && typeof station.price === "number" && typeof budget === "number" && typeof efficiency === "number") {
         try {
           fuelCalc = calculateEffectiveFuelVolume({
             price_per_litre: station.price,
             distance_km: distanceKm,
             budget,
-            efficiency,
+            efficiency_l_per_100km: efficiency,
           });
         } catch (err) {
           console.error(`Fuel calculation failed for [${station.station_name}]`, err);

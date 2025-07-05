@@ -5,14 +5,20 @@ const FuelList = ({ userLocation }) => {
   const [stations, setStations] = useState([]);
   const [originalStations, setOriginalStations] = useState([]);
   const [fuelAmount, setFuelAmount] = useState("");
-  const [submittedAmount, setSubmittedAmount] = useState(null); 
+  const [efficiency, setEfficiency] = useState("");
+  const [submittedAmount, setSubmittedAmount] = useState(null); // separated
+  const [submittedEfficiency, setSubmittedEfficiency] = useState(null); // separated
   const [sortBy, setSortBy] = useState("distance");
 
   useEffect(() => {
-    if (userLocation && (sortBy === "distance" || submittedAmount !== null)) {
-      const budgetInDollars = parseFloat(submittedAmount) || 0;
+    if (
+      userLocation &&
+      (sortBy === "distance" || (submittedAmount !== null && submittedEfficiency !== null))
+    ) {
+      const budgetInDollars = submittedAmount || 0;
+      const eff = submittedEfficiency || 10;
 
-      fetchDistances(userLocation, budgetInDollars)
+      fetchDistances(userLocation, budgetInDollars, eff)
         .then((data) => {
           const converted = data.map(station => ({
             ...station,
@@ -37,13 +43,14 @@ const FuelList = ({ userLocation }) => {
           console.error("Failed to fetch distances:", err);
         });
     }
-  }, [userLocation, submittedAmount, sortBy]);
+  }, [userLocation, submittedAmount, submittedEfficiency, sortBy]);
 
   const toggleSort = () => {
     setSortBy(prev => {
       const newSort = prev === "distance" ? "volume" : "distance";
       if (newSort === "distance") {
-        setSubmittedAmount(null); // reset when toggling back
+        setSubmittedAmount(null);
+        setSubmittedEfficiency(null);
       }
       return newSort;
     });
@@ -53,8 +60,13 @@ const FuelList = ({ userLocation }) => {
     setFuelAmount(e.target.value);
   };
 
+  const handleEfficiencyChange = (e) => {
+    setEfficiency(e.target.value);
+  };
+
   const handleSubmit = () => {
-    setSubmittedAmount(fuelAmount); // triggers API call
+    setSubmittedAmount(parseFloat(fuelAmount));
+    setSubmittedEfficiency(parseFloat(efficiency));
   };
 
   return (
@@ -68,6 +80,7 @@ const FuelList = ({ userLocation }) => {
           <button onClick={toggleSort} style={{ marginRight: "15px", padding: "6px 10px" }}>
             Sort by: {sortBy === "distance" ? "Distance" : "Max Volume"}
           </button>
+
           {sortBy === "volume" && (
             <div style={{ display: "inline-block" }}>
               <label>
@@ -86,6 +99,24 @@ const FuelList = ({ userLocation }) => {
                   }}
                 />
               </label>
+
+              <label style={{ marginLeft: "15px" }}>
+                Efficiency (L/100km):
+                <input
+                  type="number"
+                  value={efficiency}
+                  onChange={handleEfficiencyChange}
+                  placeholder="e.g. 8.5"
+                  style={{
+                    marginLeft: "10px",
+                    padding: "5px",
+                    borderRadius: "4px",
+                    border: "1px solid #ccc",
+                    width: "80px",
+                  }}
+                />
+              </label>
+
               <button
                 onClick={handleSubmit}
                 style={{
@@ -108,7 +139,7 @@ const FuelList = ({ userLocation }) => {
       <ul style={{ listStyleType: "none", padding: 0 }}>
         {stations.map((station, index) => {
           const volume =
-            submittedAmount && sortBy === "volume" && station.fuel_volume
+            submittedAmount !== null && sortBy === "volume" && station.fuel_volume
               ? station.fuel_volume.toFixed(2)
               : null;
 

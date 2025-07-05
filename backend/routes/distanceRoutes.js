@@ -22,36 +22,50 @@ router.post("/", async (req, res) => {
       return res.status(404).json({ error: "No gas stations found nearby." });
     }
 
-    // 2. Get Place Details (using Places API v1)
+    // 2. Get Place Details and Fuel Prices
     const placeDetailsPromises = nearbyStations.map(async (station) => {
-      const detailsUrl = `https://places.googleapis.com/v1/places/${station.place_id}?fields=displayName,formattedAddress,fuelOptions&key=${process.env.GOOGLE_API_KEY}`;
-      const detailsRes = await axios.get(detailsUrl);
-      const details = detailsRes.data;
+      try {
+        const detailsUrl = `https://places.googleapis.com/v1/places/${station.place_id}?fields=displayName,formattedAddress,fuelOptions&key=${process.env.GOOGLE_API_KEY}`;
+        const detailsRes = await axios.get(detailsUrl);
+        const details = detailsRes.data;
 
-      const regularFuel = details?.fuelOptions?.fuelPrices?.find(fp => fp.type === "REGULAR");
-      const price = regularFuel?.price?.amount || null;
+        // Check if fuelOptions and fuelPrices are valid
+        const prices = details?.fuelOptions?.fuelPrices;
+        if (!prices || !Array.isArray(prices)) {
+          return null; // Skip station
+        }
 
-      return {
-        station_name: details.displayName?.text || "Unknown",
-        address: details.formattedAddress || "Unknown",
-        price,
-      };
+        // Try to find regular or fallback fuel type
+        const preferredTypes = ["REGULAR_UNLEADED", "REGULAR", "MIDGRADE", "PREMIUM"];
+        const fuelEntry = prices.find(fp => preferredTypes.includes(fp.type));
+
+        if (!fuelEntry || !fuelEntry.price || fuelEntry.price.units == null || fuelEntry.price.nanos == null) {
+          return null;
+        }
+
+        // Combine units + nanos into float (e.g. 1.28)
+        const priceFloat = parseFloat(`${fuelEntry.price.units}.${Math.round(fuelEntry.price.nanos / 1e6).toString().padStart(3, '0')}`);
+
+        return {
+          station_name: details.displayName?.text || "Unknown",
+          address: details.formattedAddress || "Unknown",
+          price: priceFloat,
+        };
+      } catch (err) {
+        console.warn(`Failed to fetch or parse details for station ${station.name}`, err.message);
+        return null;
+      }
     });
 
-    const stations = await Promise.all(placeDetailsPromises);
-
-    // 3. Filter out stations with missing price
-    const filteredStations = stations.filter(station => station.price !== null);
+    const stationsWithPrices = await Promise.all(placeDetailsPromises);
+    const filteredStations = stationsWithPrices.filter(station => station !== null && typeof station.price === "number");
 
     if (filteredStations.length === 0) {
       return res.status(404).json({ error: "No fuel price data found for nearby stations." });
     }
 
-    // 4. Prepare destinations string for Distance Matrix API
-    const destinations = filteredStations
-      .map((station) => encodeURIComponent(station.address))
-      .join("|");
-
+    // 3. Prepare Distance Matrix API call
+    const destinations = filteredStations.map((station) => encodeURIComponent(station.address)).join("|");
     const distanceUrl = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${originString}&destinations=${destinations}&key=${process.env.GOOGLE_API_KEY}`;
     const distanceResponse = await axios.get(distanceUrl);
     const distanceRows = distanceResponse.data.rows;
@@ -63,7 +77,7 @@ router.post("/", async (req, res) => {
 
     const distanceData = distanceRows[0].elements;
 
-    // 5. Combine results with distance and fuel calculations
+    // 4. Combine station data with distance and fuel calculations
     const result = filteredStations.map((station, index) => {
       const distanceElement = distanceData[index];
 

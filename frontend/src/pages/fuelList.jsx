@@ -10,13 +10,13 @@ const FuelList = ({ userLocation }) => {
 
   useEffect(() => {
     if (userLocation && (sortBy === "distance" || submittedAmount !== null)) {
-      const budgetInCents = sortBy === "volume" ? (parseFloat(submittedAmount) * 100 || 0) : 0;
+      const budgetInDollars = parseFloat(submittedAmount) || 0;
 
-      fetchDistances(userLocation, budgetInCents)
+      fetchDistances(userLocation, budgetInDollars)
         .then((data) => {
           const converted = data.map(station => ({
             ...station,
-            price: parseFloat(station.price),
+            price: typeof station.price === "string" ? parseFloat(station.price) : station.price,
             fuel_volume: station.fuel_volume ? parseFloat(station.fuel_volume) : null,
           }));
 

@@ -5,7 +5,7 @@ const FuelList = ({ userLocation }) => {
   const [stations, setStations] = useState([]);
   const [originalStations, setOriginalStations] = useState([]);
   const [fuelAmount, setFuelAmount] = useState("");
-  const [submittedAmount, setSubmittedAmount] = useState(null); // NEW
+  const [submittedAmount, setSubmittedAmount] = useState(null); 
   const [sortBy, setSortBy] = useState("distance");
 
   useEffect(() => {

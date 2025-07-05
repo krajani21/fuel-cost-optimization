@@ -35,9 +35,7 @@ router.post("/", async (req, res) => {
           return null; // Skip station
         }
 
-        // Try to find regular or fallback fuel type
-        const preferredTypes = ["REGULAR_UNLEADED", "REGULAR", "MIDGRADE", "PREMIUM"];
-        const fuelEntry = prices.find(fp => preferredTypes.includes(fp.type));
+        const fuelEntry = prices.find(fp => fp.type === "REGULAR_UNLEADED");
 
         if (!fuelEntry || !fuelEntry.price || fuelEntry.price.units == null || fuelEntry.price.nanos == null) {
           return null;

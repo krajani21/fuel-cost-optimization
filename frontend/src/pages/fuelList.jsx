@@ -16,7 +16,7 @@ const FuelList = ({ userLocation }) => {
         .then((data) => {
           const converted = data.map(station => ({
             ...station,
-            price: station.price / 100,
+            price: parseFloat(station.price),
             fuel_volume: station.fuel_volume ? parseFloat(station.fuel_volume) : null,
           }));
 

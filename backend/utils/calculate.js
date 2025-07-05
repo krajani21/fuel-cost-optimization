@@ -1,7 +1,5 @@
-const EFFICIENCY_PER_100KM = 10; //litres per 100 km
-
-const calculateEffectiveFuelVolume = ({ price_per_litre, distance_km, budget }) => {
-  const litresUsed = (distance_km * EFFICIENCY_PER_100KM) / 100;
+const calculateEffectiveFuelVolume = ({ price_per_litre, distance_km, budget, efficiency_l_per_100km }) => {
+  const litresUsed = (distance_km * efficiency_l_per_100km) / 100;
   const travelCost = litresUsed * price_per_litre;
 
   const effectiveBudget = budget - travelCost;

@@ -5,10 +5,10 @@ const { calculateEffectiveFuelVolume } = require("../utils/calculate");
 
 router.post("/", async (req, res) => {
   try {
-    const { origin, budget } = req.body;
+    const { origin, budget, efficiency } = req.body;
 
-    if (!origin || !origin.lat || !origin.lng || typeof budget !== "number") {
-      return res.status(400).json({ error: "Invalid origin or budget" });
+    if (!origin || !origin.lat || !origin.lng || typeof budget !== "number" || typeof efficiency !== "number") {
+      return res.status(400).json({ error: "Invalid origin, budget, or efficiency" });
     }
 
     const originString = `${origin.lat},${origin.lng}`;
@@ -108,6 +108,7 @@ router.post("/", async (req, res) => {
             price_per_litre: station.price,
             distance_km: distanceKm,
             budget,
+            efficiency,
           });
         } catch (err) {
           console.error(`Fuel calculation failed for [${station.station_name}]`, err);

@@ -3,8 +3,6 @@ const router = express.Router();
 const axios = require("axios");
 const { calculateEffectiveFuelVolume } = require("../utils/calculate");
 
-const FLASK_API_URL = "http://localhost:8000/alberta/edmonton";
-
 router.post("/", async (req, res) => {
   try {
     const { origin, budget } = req.body;
@@ -14,34 +12,62 @@ router.post("/", async (req, res) => {
     }
 
     const originString = `${origin.lat},${origin.lng}`;
-    const city = "Edmonton, AB, Canada";
 
-    // Get stations from your Flask API
-    const stationRes = await axios.get(FLASK_API_URL);
-    const stations = stationRes.data;
+    // 1. Get Nearby Gas Stations (within 5km)
+    const nearbyUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${originString}&radius=5000&type=gas_station&key=${process.env.GOOGLE_API_KEY}`;
+    const nearbyResponse = await axios.get(nearbyUrl);
+    const nearbyStations = nearbyResponse.data.results;
 
-    const destinations = stations
-      .map((station) => encodeURIComponent(`${station.address}, ${city}`))
+    if (!nearbyStations || nearbyStations.length === 0) {
+      return res.status(404).json({ error: "No gas stations found nearby." });
+    }
+
+    // 2. Get Place Details (using Places API v1)
+    const placeDetailsPromises = nearbyStations.map(async (station) => {
+      const detailsUrl = `https://places.googleapis.com/v1/places/${station.place_id}?fields=displayName,formattedAddress,fuelOptions&key=${process.env.GOOGLE_API_KEY}`;
+      const detailsRes = await axios.get(detailsUrl);
+      const details = detailsRes.data;
+
+      const regularFuel = details?.fuelOptions?.fuelPrices?.find(fp => fp.type === "REGULAR");
+      const price = regularFuel?.price?.amount || null;
+
+      return {
+        station_name: details.displayName?.text || "Unknown",
+        address: details.formattedAddress || "Unknown",
+        price,
+      };
+    });
+
+    const stations = await Promise.all(placeDetailsPromises);
+
+    // 3. Filter out stations with missing price
+    const filteredStations = stations.filter(station => station.price !== null);
+
+    if (filteredStations.length === 0) {
+      return res.status(404).json({ error: "No fuel price data found for nearby stations." });
+    }
+
+    // 4. Prepare destinations string for Distance Matrix API
+    const destinations = filteredStations
+      .map((station) => encodeURIComponent(station.address))
       .join("|");
 
-    const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${originString}&destinations=${destinations}&key=${process.env.GOOGLE_API_KEY}`;
-
-    const response = await axios.get(url);
-    const distanceRows = response.data.rows;
+    const distanceUrl = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${originString}&destinations=${destinations}&key=${process.env.GOOGLE_API_KEY}`;
+    const distanceResponse = await axios.get(distanceUrl);
+    const distanceRows = distanceResponse.data.rows;
 
     if (!distanceRows || !distanceRows[0] || !distanceRows[0].elements) {
-      console.error("Invalid Distance Matrix response:", response.data);
-      return res.status(500).json({ error: "Failed to get valid distance data from Google API" });
+      console.error("Invalid Distance Matrix response:", distanceResponse.data);
+      return res.status(500).json({ error: "Failed to get distance data from Google API" });
     }
 
     const distanceData = distanceRows[0].elements;
 
-    const result = stations.map((station, index) => {
+    // 5. Combine results with distance and fuel calculations
+    const result = filteredStations.map((station, index) => {
       const distanceElement = distanceData[index];
 
-      // Handle bad/missing responses
       if (!distanceElement || distanceElement.status !== "OK") {
-        console.warn(`Skipping station [${station.station_name}] due to invalid distance response.`);
         return {
           ...station,
           distance: null,
@@ -91,7 +117,7 @@ router.post("/", async (req, res) => {
     res.json(result);
   } catch (error) {
     console.error("Error in /api/distances:", error.message);
-    res.status(500).json({ error: "Failed to calculate distances" });
+    res.status(500).json({ error: "Failed to calculate distances and fuel data" });
   }
 });
 

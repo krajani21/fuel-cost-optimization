@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const distanceRoutes = require("./routes/distanceRoutes");
 const volumeBasedRoutes = require("./routes/volumeBasedRoutes")
+const distanceOnlyRoutes = require("./routes/distanceOnlyRoutes");
 const fuelRoutes = require("./routes/fuelRoutes");
 const cors = require("cors");
 
@@ -30,6 +31,7 @@ app.use("/fuelstations", fuelRoutes); // e.g. /fuelstations/cheapest
 app.use("/api/distances", distanceRoutes);//handle distance calculation logic
 
 app.use("/api/volume-based", volumeBasedRoutes);//handle volume based logic
+app.use("/api/distances-only", distanceOnlyRoutes)
 
 // Optional root route
 app.get("/", (req, res) => {

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { fetchDistanceOnly } from '../api/distanceOnly';
+import '../styles/global.css';
+import '../styles/FuelList.css';
 
 const FuelListDistance = ({ userLocation }) => {
   const [stations, setStations] = useState([]);
@@ -11,7 +13,6 @@ const FuelListDistance = ({ userLocation }) => {
           const sorted = data
             .filter(station => station.distance !== null)
             .sort((a, b) => a.distance - b.distance);
-
           setStations(sorted);
         })
         .catch((err) => {
@@ -21,26 +22,15 @@ const FuelListDistance = ({ userLocation }) => {
   }, [userLocation]);
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h1 style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "20px" }}>
-        Fuel Stations Sorted by Distance
-      </h1>
+    <div className="container">
+      <h1>Fuel Stations Sorted by Distance</h1>
 
       <ul style={{ listStyleType: "none", padding: 0 }}>
         {stations.map((station, index) => (
-          <li
-            key={index}
-            style={{
-              marginBottom: "10px",
-              padding: "10px",
-              border: "1px solid #ccc",
-              borderRadius: "5px",
-              backgroundColor: "#f9f9f9",
-            }}
-          >
+          <li key={index} className="station-card">
             <strong>{station.station_name}</strong> - {station.address} - ${station.price.toFixed(2)}
             <br />
-            <span style={{ fontSize: "0.9em", color: "#555" }}>
+            <span className="station-meta">
               Distance: {station.distance_text} ({station.duration_text})
             </span>
           </li>

@@ -1,25 +1,13 @@
-/* Reset & base styles */
+/* global.css */
+
 body {
   margin: 0;
-  padding: 0;
-  font-family: "Segoe UI", "Roboto", "Arial", sans-serif;
-  background-color: #e9f0f4;
-  color: #333;
+  font-family: Arial, sans-serif;
+  background-color: #eef3f9; /* Light blueish background for entire page */
+  color: #222;
+  min-height: 100vh;
 }
 
-/* Main container styling */
-.container {
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 25px;
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-/* Headings */
-h1 {
-  font-size: 28px;
-  margin-bottom: 25px;
-  color: #1a1a1a;
+button {
+  font-family: inherit;
 }

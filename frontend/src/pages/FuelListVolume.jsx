@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { fetchVolumeBased } from '../api/volumeBased';
-import '../styles/global.css';
 import '../styles/FuelList.css';
 
 const FuelListVolume = ({ userLocation }) => {
@@ -11,11 +10,7 @@ const FuelListVolume = ({ userLocation }) => {
   const [submittedEfficiency, setSubmittedEfficiency] = useState(null);
 
   useEffect(() => {
-    if (
-      userLocation &&
-      submittedAmount !== null &&
-      submittedEfficiency !== null
-    ) {
+    if (userLocation && submittedAmount !== null && submittedEfficiency !== null) {
       fetchVolumeBased(userLocation, submittedAmount, submittedEfficiency)
         .then((data) => {
           const sorted = data
@@ -35,45 +30,42 @@ const FuelListVolume = ({ userLocation }) => {
   };
 
   return (
-    <div className="container">
-      <h1>Fuel Stations by Max Volume (Budget-based)</h1>
+    <div className="page-container">
+      <h1 className="heading">Fuel Stations by Max Volume (Budget-based)</h1>
 
       {userLocation && (
-        <div style={{ marginBottom: "20px" }}>
-          <label className="input-label">
-            Enter $ amount:
+        <div className="input-group">
+          <label>
+            $ Amount:
             <input
               type="number"
               value={fuelAmount}
               onChange={(e) => setFuelAmount(e.target.value)}
-              className="input-field"
+              placeholder="e.g. 40"
             />
           </label>
 
-          <label className="input-label" style={{ marginLeft: "15px" }}>
+          <label>
             Efficiency (L/100km):
             <input
               type="number"
               value={efficiency}
               onChange={(e) => setEfficiency(e.target.value)}
-              className="input-field"
+              placeholder="e.g. 8.5"
             />
           </label>
 
-          <button onClick={handleSubmit} className="submit-button">
-            Submit
-          </button>
+          <button onClick={handleSubmit}>Submit</button>
         </div>
       )}
 
-      <ul style={{ listStyleType: "none", padding: 0 }}>
+      <ul className="station-list">
         {stations.map((station, index) => (
           <li key={index} className="station-card">
             <strong>{station.station_name}</strong> - {station.address} - ${station.price.toFixed(2)}
-            <br />
-            <span className="station-meta">
+            <div className="station-meta">
               Distance: {station.distance_text} ({station.duration_text})
-            </span>
+            </div>
             <div className="station-volume">
               Max Volume: {station.fuel_volume.toFixed(2)} L
             </div>

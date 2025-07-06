@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import FuelListDistance from './pages/FuelListDistance';
 import FuelListVolume from './pages/FuelListVolume';
 import './App.css';
+import './styles/global.css'; 
+import FuelListDistance from './pages/fuelListDistance';
 
 function App() {
   const [userLocation, setUserLocation] = useState(null);
@@ -26,14 +27,27 @@ function App() {
 
   return (
     <Router>
-      <div className="App" style={{ padding: "20px" }}>
-        <button onClick={handleGetLocation} style={{ marginBottom: "20px", padding: "10px" }}>
+      <div className="App" style={{ padding: "20px", maxWidth: "900px", margin: "0 auto" }}>
+        <button
+          onClick={handleGetLocation}
+          style={{
+            marginBottom: "20px",
+            padding: "10px 16px",
+            borderRadius: "6px",
+            backgroundColor: "#007BFF",
+            color: "#fff",
+            border: "none",
+            cursor: "pointer",
+            fontWeight: "bold",
+          }}
+        >
           Get location
         </button>
 
-        <nav style={{ marginBottom: "20px" }}>
-          <Link to="/" style={{ marginRight: "15px" }}>Sort by Distance</Link>
-          <Link to="/volume">Sort by Max Volume</Link>
+        <nav className = "nav-links">
+          <Link to="/" className="nav-button">Sort by Distance</Link>
+          
+          <Link to="/volume" className="nav-button">Sort by Max Volume</Link>
         </nav>
 
         <Routes>

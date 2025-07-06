@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { fetchVolumeBased } from '../api/volumeBased';
+import '../styles/global.css';
+import '../styles/FuelList.css';
 
 const FuelListVolume = ({ userLocation }) => {
   const [stations, setStations] = useState([]);
@@ -19,7 +21,6 @@ const FuelListVolume = ({ userLocation }) => {
           const sorted = data
             .filter(station => station.fuel_volume !== null)
             .sort((a, b) => b.fuel_volume - a.fuel_volume);
-
           setStations(sorted);
         })
         .catch((err) => {
@@ -34,59 +35,32 @@ const FuelListVolume = ({ userLocation }) => {
   };
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h1 style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "20px" }}>
-        Fuel Stations by Max Volume (Budget-based)
-      </h1>
+    <div className="container">
+      <h1>Fuel Stations by Max Volume (Budget-based)</h1>
 
       {userLocation && (
         <div style={{ marginBottom: "20px" }}>
-          <label>
+          <label className="input-label">
             Enter $ amount:
             <input
               type="number"
               value={fuelAmount}
               onChange={(e) => setFuelAmount(e.target.value)}
-              placeholder="e.g. 40"
-              style={{
-                marginLeft: "10px",
-                padding: "5px",
-                borderRadius: "4px",
-                border: "1px solid #ccc",
-                width: "80px",
-              }}
+              className="input-field"
             />
           </label>
 
-          <label style={{ marginLeft: "15px" }}>
+          <label className="input-label" style={{ marginLeft: "15px" }}>
             Efficiency (L/100km):
             <input
               type="number"
               value={efficiency}
               onChange={(e) => setEfficiency(e.target.value)}
-              placeholder="e.g. 8.5"
-              style={{
-                marginLeft: "10px",
-                padding: "5px",
-                borderRadius: "4px",
-                border: "1px solid #ccc",
-                width: "80px",
-              }}
+              className="input-field"
             />
           </label>
 
-          <button
-            onClick={handleSubmit}
-            style={{
-              marginLeft: "10px",
-              padding: "5px 10px",
-              borderRadius: "4px",
-              backgroundColor: "#007BFF",
-              color: "#fff",
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
+          <button onClick={handleSubmit} className="submit-button">
             Submit
           </button>
         </div>
@@ -94,22 +68,13 @@ const FuelListVolume = ({ userLocation }) => {
 
       <ul style={{ listStyleType: "none", padding: 0 }}>
         {stations.map((station, index) => (
-          <li
-            key={index}
-            style={{
-              marginBottom: "10px",
-              padding: "10px",
-              border: "1px solid #ccc",
-              borderRadius: "5px",
-              backgroundColor: "#f9f9f9",
-            }}
-          >
+          <li key={index} className="station-card">
             <strong>{station.station_name}</strong> - {station.address} - ${station.price.toFixed(2)}
             <br />
-            <span style={{ fontSize: "0.9em", color: "#555" }}>
+            <span className="station-meta">
               Distance: {station.distance_text} ({station.duration_text})
             </span>
-            <div style={{ fontSize: "0.95em", color: "#333", marginTop: "4px" }}>
+            <div className="station-volume">
               Max Volume: {station.fuel_volume.toFixed(2)} L
             </div>
           </li>

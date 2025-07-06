@@ -1,56 +1,91 @@
+/* Fuel Station Card Styling */
 .station-card {
-  padding: 15px;
-  margin-bottom: 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background-color: #fdfdfd;
-  transition: box-shadow 0.2s ease;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  border-radius: 10px;
+  background-color: #fdfefe;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  border-left: 5px solid #007BFF;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .station-card:hover {
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
+/* Meta info like distance/duration */
 .station-meta {
   font-size: 0.9em;
   color: #555;
-  margin-top: 5px;
+  margin-top: 6px;
 }
 
+/* Additional info like fuel volume */
 .station-volume {
   font-size: 0.95em;
   color: #444;
-  margin-top: 8px;
+  margin-top: 10px;
 }
 
-.input-group {
-  margin-bottom: 15px;
-}
-
+/* Label + input styling */
 .input-label {
   display: inline-block;
   margin-right: 10px;
   font-weight: 500;
+  color: #333;
 }
 
 .input-field {
-  padding: 6px 10px;
-  border-radius: 5px;
+  padding: 7px 12px;
+  border-radius: 6px;
   border: 1px solid #ccc;
-  width: 100px;
+  width: 90px;
+  transition: border-color 0.2s ease;
 }
 
+.input-field:focus {
+  border-color: #007BFF;
+  outline: none;
+}
+
+/* Submit button */
 .submit-button {
-  padding: 6px 12px;
-  background-color: #007BFF;
+  padding: 7px 15px;
+  background: linear-gradient(145deg, #007BFF, #0056b3);
   color: white;
   border: none;
-  border-radius: 5px;
-  margin-left: 10px;
+  border-radius: 6px;
+  margin-left: 12px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 123, 255, 0.4);
 }
 
 .submit-button:hover {
-  background-color: #0056b3;
+  background: linear-gradient(145deg, #0056b3, #004499);
+  transform: scale(1.03);
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 600px) {
+  .container {
+    padding: 15px;
+  }
+
+  .input-field {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .input-label {
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .submit-button {
+    display: block;
+    margin: 12px 0 0 0;
+    width: 100%;
+  }
 }

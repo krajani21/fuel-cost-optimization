@@ -32,7 +32,7 @@ const FuelListVolume = ({ userLocation }) => {
   const handleGetDirections = (lat, lng) => {
     const origin = `${userLocation.lat},${userLocation.lng}`;
     const destination = `${lat},${lng}`;
-    const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&travelmode=driving`;
     window.open(url, '_blank');
   };
 

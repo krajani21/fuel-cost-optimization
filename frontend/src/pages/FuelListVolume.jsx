@@ -29,6 +29,13 @@ const FuelListVolume = ({ userLocation }) => {
     setSubmittedEfficiency(parseFloat(efficiency));
   };
 
+  const handleGetDirections = (lat, lng) => {
+    const origin = `${userLocation.lat},${userLocation.lng}`;
+    const destination = `${lat},${lng}`;
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
+    window.open(url, '_blank');
+  };
+
   return (
     <div className="page-container">
       <h1 className="heading">Fuel Stations by Max Volume (Budget-based)</h1>
@@ -69,6 +76,12 @@ const FuelListVolume = ({ userLocation }) => {
             <div className="station-volume">
               Max Volume: {station.fuel_volume.toFixed(2)} L
             </div>
+            <button
+              className="directions-button"
+              onClick={() => handleGetDirections(station.lat, station.lng)}
+            >
+              Get Directions
+            </button>
           </li>
         ))}
       </ul>

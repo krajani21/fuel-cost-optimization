@@ -113,3 +113,20 @@ button {
   background-color: #007BFF;
   color: #fff;
 }
+
+.directions-button {
+  margin-top: 10px;
+  padding: 8px 12px;
+  font-size: 0.9em;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.directions-button:hover {
+  background-color: #0056b3;
+}
+

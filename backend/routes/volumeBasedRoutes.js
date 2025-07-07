@@ -43,7 +43,7 @@ router.post("/", async (req, res) => {
           address: details.formattedAddress || station.vicinity,
           location: station.geometry.location,
           lat: station.geometry.location.lat,
-          lng: station.geometry.location.lng, //this will used to redirect to the map
+          lng: station.geometry.location.lng, 
           price: priceFloat,
         };
       } catch (error) {

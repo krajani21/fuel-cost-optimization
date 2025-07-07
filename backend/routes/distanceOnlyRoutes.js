@@ -38,6 +38,8 @@ router.post("/", async (req, res) => {
           station_name: details.displayName?.text || station.name,
           address: details.formattedAddress || station.vicinity,
           location: station.geometry.location,
+          lat: station.geometry.location.lat,
+          lng:station.geometry.location.lng,
           price: priceFloat,
         };
       } catch (error) {
